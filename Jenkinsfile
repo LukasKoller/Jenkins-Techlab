@@ -1,3 +1,5 @@
+@Library('jenkins-techlab-exercise-library') _
+
 pipeline {
     agent any
     options {
@@ -13,7 +15,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'mvn -B -V -U -e clean verify -Dsurefire.useFile=false -DargLine="-Djdk.net.URLClassPath.disableClassPathURLCheck=true" -Dmaven.test.failure.ignore=true'
+                sh 'mvn -B -V -U -e clean verify -Dsurefire.useFile=false -DargLine="-Djdk.net.URLClassPath.disableClassPathURLCheck=true"'
                 archiveArtifacts 'target/*.?ar'
             }
             post {
@@ -24,26 +26,8 @@ pipeline {
         }
     }
     post {
-        success {
-            rocketSend (
-                avatar: 'https://chat.puzzle.ch/emoji-custom/success.png',
-                message: "Build success - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)",
-                rawMessage: true
-            )
-        }
-        unstable {
-            rocketSend (
-                avatar: 'https://chat.puzzle.ch/emoji-custom/unstable.png',
-                message: "Build unstable - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)",
-                rawMessage: true
-            )
-        }
-        failure {
-            rocketSend (
-                avatar: 'https://chat.puzzle.ch/emoji-custom/failure.png',
-                message: "Build failure - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)",
-                rawMessage: true
-            )
+        always {
+            notifyPuzzleChat('general')
         }
     }
 }
