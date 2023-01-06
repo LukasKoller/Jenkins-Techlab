@@ -10,9 +10,9 @@ RUN wget -qO- ${docker_url}docker-${docker_version}.tgz | \
 # build final image
 FROM jenkins/ssh-agent 
 
-# install git
+# install git and curl
 RUN apt-get update && apt-get install -y \
-	git \
+	git curl \
 	&& rm -rf /var/lib/apt/lists/*
 
 # copy docker from "downloader" build stage
