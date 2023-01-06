@@ -13,7 +13,9 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        installBundle()
+        stage('Build') {
+            installBundle()
+        }
         stage('Info') {
             steps {
                 sh  """#!/bin/bash
