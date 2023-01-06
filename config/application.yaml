@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+        app: my-app
+    name: application
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        deployment: application
+    strategy: {}
+    template:
+      metadata:
+        labels:
+          deployment: application
+      spec:
+        containers:
+        - image: 'application:latest'
+          name: application
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          resources: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+        app: my-app
+    name: application
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: 8443-tcp
+      port: 8443
+      protocol: TCP
+      targetPort: 8443
+    selector:
+      deployment: application
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: my-app
+    name: application
+  spec:
+    port:
+      targetPort: 8080-tcp
+    tls:
+      termination: edge
+    to:
+      kind: Service
+      name: application
+      weight: 100
+    wildcardPolicy: None
+

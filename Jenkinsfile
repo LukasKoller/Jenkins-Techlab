@@ -45,5 +45,54 @@ pipeline {
                 }
             }
         }
+        stage('oc apply configuration') {
+            steps {
+                script {
+                    openshift.withCluster(env.OPENSHIFT_CLUSTER) {
+                        openshift.withCredentials(env.OPENSHIFT_CREDENTIALS) {
+                            openshift.withProject(env.OPENSHIFT_PROJECT) {
+                                echo "Hello from project ${openshift.project()} in cluster ${openshift.cluster()}"
+                                println openshift.apply('-f', 'config/', '-l', "app=${APP_LABEL}").out
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage('build application') {
+            steps {
+
+                script {
+                    openshift.withCluster(env.OPENSHIFT_CLUSTER) {
+                        openshift.withCredentials(env.OPENSHIFT_CREDENTIALS) {
+                            openshift.withProject(env.OPENSHIFT_PROJECT) {
+                                echo "Hello from project ${openshift.project()} in cluster ${openshift.cluster()}"
+                                def bcSelector = openshift.selector("BuildConfig", [ app : env.APP_LABEL ]) // select build
+                                bcSelector.startBuild('--follow').out
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage('deploy application') {
+            steps {
+                script {
+                    openshift.withCluster(env.OPENSHIFT_CLUSTER) {
+                        openshift.withCredentials(env.OPENSHIFT_CREDENTIALS) {
+                            openshift.withProject(env.OPENSHIFT_PROJECT) {
+                                echo "Hello from project ${openshift.project()} in cluster ${openshift.cluster()}"
+                                // update image of deployment to latest built image (built in previous stage)
+                                println openshift.raw("set image deployment/application application=image-registry.openshift-image-registry.svc:5000/${OPENSHIFT_PROJECT}/application:latest").out
+                                // start the application deployment
+                                println openshift.raw('rollout restart deploy/application').out
+                                // wait for the application deployment
+                                println openshift.raw('rollout status deploy/application').out
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
