@@ -6,31 +6,34 @@ help:
 DOCKER_COMPOSE := docker-compose
 DOCKER_COMPOSE_FILE := local_env/docker-compose.yml
 
-build: ## build container
+build: ## Build or rebuild services
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) build
 
-up: ## start all container in foreground
+up: ## Create and start containers
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) up
 
-start: ## start all container in background
+start: ## Create and start containers. Detached mode: Run containers in the background
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) up -d
 
-setup: ## build and start all container in background
+setup: ## Build or rebuild services and create and start containers in detached mode
 	@$(MAKE) build
 	@$(MAKE) start
 
-stop: ## stop all container
+stop: ## Stop services
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) stop
 
-restart: ## restart all container
-	$(MAKE) stop
-	$(MAKE) start
+restart: ## Stop services and create and start containers in detached mode
+	@$(MAKE) stop
+	@$(MAKE) start
 
-ps:
+bash: ## Execute bash in a running container (c=jenkins|jenkins_slave_docker|docker|rocketchat|mongo|mongo-init-replica|hubot)
+	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) exec $(c) /bin/bash
+
+ps: ## List containers
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) ps
 
-logs: ## Show logs for all container
+logs: ## View output from containers with following the log output. Shows the last 100 lines of the tail
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) logs --tail=100 -f 
 
-clean: ## Clean all data
+clean: ## Stop and remove resources and remove named volumes declared in the `volumes` section of the Compose file
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down -v
