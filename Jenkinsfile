@@ -14,11 +14,7 @@ pipeline {
     }
     stages {
         stage('Info') {
-            post {
-                always {
-                    installBundle()
-                }
-            }
+            installBundle()
             steps {
                 sh  """#!/bin/bash
                     ruby --version
