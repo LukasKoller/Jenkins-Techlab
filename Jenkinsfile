@@ -13,12 +13,12 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        post {
-            always {
-                installBundle()
-            }
-        }
         stage('Info') {
+            post {
+                always {
+                    installBundle()
+                }
+            }
             steps {
                 sh  """#!/bin/bash
                     ruby --version
