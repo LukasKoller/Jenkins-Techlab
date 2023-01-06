@@ -13,8 +13,10 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage('Build') {
-            installBundle()
+        post {
+            always {
+                installBundle()
+            }
         }
         stage('Info') {
             steps {
