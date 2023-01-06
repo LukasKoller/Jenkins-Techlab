@@ -1,3 +1,5 @@
+@Library('jenkins-techlab-lib') _
+
 pipeline {
     agent {
         docker {
@@ -11,11 +13,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage('Build') {
-            steps {
-                sh 'bundle install'
-            }
-        }
+        installBundle()
         stage('Info') {
             steps {
                 sh  """#!/bin/bash
